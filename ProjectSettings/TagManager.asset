@@ -3,7 +3,25 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - PlayButton
+  - Wall
+  - MainMenu
+  - Climbers
+  - GoblinClimber
+  - Weapon
+  - Projectile
+  - Arrow
+  - Undefined
+  - Barrel
+  - UICanvas
+  - ClimbersText
+  - SurvivedText
+  - Metaball_liquid
+  - BarrelObjects
+  - Oil
+  - Scythe
+  - Chain
   layers:
   - Default
   - TransparentFX
@@ -13,7 +31,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - Indestructible
   - 
   - 
   - 
