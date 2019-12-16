@@ -168,152 +168,260 @@ public class GameScript : MonoBehaviour
 
             }
 
-            // IS supposed to be touch version of rotation an object
-            if(Input.touchCount > 0)
+                               
+             
+            // IF user has chosen Keyboard&Mouse inputs for testing
+            if(mms.ChosenInput == 0)
             {
-                touch = Input.GetTouch(0);
-                var weapon = GameObject.FindGameObjectWithTag("Weapon");
-                
-                if(touch.phase == TouchPhase.Moved)
-                {
-                    rotationY = Quaternion.Euler(0f, -touch.deltaPosition.x * rotateSpeedModifier, 0f);
-                    weapon.transform.rotation = rotationY * weapon.transform.rotation;
-                }
-            }
 
-            // Mouse equivalent?
-            if(Input.GetButton("Fire1"))
-            {
-                var weapon = GameObject.FindGameObjectWithTag("Weapon");
-                var barrel = GameObject.FindGameObjectWithTag("Barrel");
-                var mousePos = Input.mousePosition;               
-                RaycastHit hit;                               
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out hit))
+                if (Input.GetButton("Fire1"))
                 {
-                    if (hit.transform.tag == "Weapon")
+                    var weapon = GameObject.FindGameObjectWithTag("Weapon");
+                    var barrel = GameObject.FindGameObjectWithTag("Barrel");
+                    var mousePos = Input.mousePosition;
+                    RaycastHit hit;
+                    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                    if (Physics.Raycast(ray, out hit))
                     {
                         
-                        if(UpOrDown == 0)
+                        if (hit.transform.tag == "Weapon")
                         {
+
+                            if (UpOrDown == 0)
+                            {
+                                rotationY = Quaternion.Euler(0f, 0f, -mousePos.y * rotateSpeedModifier);
+                                rotationYDown = Quaternion.Euler(0f, 0f, mousePos.y * rotateSpeedModifier);
+                            }
+
+                            //Debug.Log("mousePos.y: " + mousePos + ". And rotationY: " + rotationY + ". And rotationYDown: " + rotationYDown + ". WepCenter " + weaponInputCenter + ". And ray: " + ray);
+                            UpOrDown = mousePos.y / 100;
+
+                            if (UpOrDown > 0.6f)
+                            {
+                                //xRotation = (float)Math.Round(Mathf.Abs(bowCenter - hit.transform.rotation.x), 2);
+                                weaponYPosition = (float)Math.Round(Mathf.Abs(weaponInputCenter - mousePos.y), 2);
+                                mousePos.y = weaponYPosition;
+                                weapon.transform.rotation = rotationY * weapon.transform.rotation;
+                                //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationY: " + rotationY);                          
+                            }
+                            else if (UpOrDown <= 0.4f)
+                            {
+                                weaponYPosition = (float)Math.Round(Mathf.Abs(weaponInputCenter - mousePos.y), 2);
+                                mousePos.y = weaponYPosition;
+                                weapon.transform.rotation = rotationYDown * weapon.transform.rotation;
+                                //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationYDown: " + rotationYDown);
+                            }
+
+                            // TODO: Put logic here. What happens when player holds finger(or in this testing-case mouse) on object. 
+                            // Rotation. 
                             rotationY = Quaternion.Euler(0f, 0f, -mousePos.y * rotateSpeedModifier);
                             rotationYDown = Quaternion.Euler(0f, 0f, mousePos.y * rotateSpeedModifier);
+                            //Debug.Log("mousePos.Y:  " + mousePos.y + " And UpOrDown: " + UpOrDown);
+
                         }
 
-                        //Debug.Log("mousePos.y: " + mousePos + ". And rotationY: " + rotationY + ". And rotationYDown: " + rotationYDown + ". WepCenter " + weaponInputCenter + ". And ray: " + ray);
-                        UpOrDown = mousePos.y / 100;                       
-
-                        if (UpOrDown > 0.6f)
+                        else if (hit.transform.tag == "Barrel")
                         {
-                            //xRotation = (float)Math.Round(Mathf.Abs(bowCenter - hit.transform.rotation.x), 2);
-                            weaponYPosition = (float)Math.Round(Mathf.Abs(weaponInputCenter - mousePos.y), 2);
-                            mousePos.y = weaponYPosition;
-                            weapon.transform.rotation = rotationY * weapon.transform.rotation;
-                            //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationY: " + rotationY);                          
-                        }
-                        else if (UpOrDown <= 0.4f)
-                        {
-                            weaponYPosition = (float)Math.Round(Mathf.Abs(weaponInputCenter - mousePos.y), 2);
-                            mousePos.y = weaponYPosition;
-                            weapon.transform.rotation = rotationYDown * weapon.transform.rotation;
-                            //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationYDown: " + rotationYDown);
-                        }
 
-                        // TODO: Put logic here. What happens when player holds finger(or in this testing-case mouse) on object. 
-                        // Rotation. 
-                        rotationY = Quaternion.Euler(0f, 0f, -mousePos.y * rotateSpeedModifier);
-                        rotationYDown = Quaternion.Euler(0f, 0f, mousePos.y * rotateSpeedModifier);
-                        //Debug.Log("mousePos.Y:  " + mousePos.y + " And UpOrDown: " + UpOrDown);
+                            /*Debug.Log(hit.transform.name + " And the center is: " + barrelCenter + ". And the center in game: " + hit.transform.position.x);
+                            barrelX =  (float)Math.Round(Mathf.Abs(hit.transform.position.x - mousePos.x), 2);
+                            var animator = barrel.GetComponent<Animator>();
+                            var LeftOrRight = mousePos.x / 100;
+                            if(LeftOrRight > 4.15)
+                            {
+                                animator.SetFloat("X", barrelX);
+                            }
+                            else if(LeftOrRight <= 4.15)
+                            {
+                                animator.SetFloat("X", barrelX * -1);
+                            }
+                            // Movement now done in DragScript which is attached to the barrel
+                            // TODO: Maybe do it with animation instead? Makes it smoother?
+
+                            Debug.Log(barrelX / 10 + ". And mouseX: " + mousePos.x + ". Moving left or right: " + LeftOrRight); // 54.8 -- 30.8  -- 10.8 */
+                        }
+                    }
+
+                }
+
+                if (Input.GetKeyDown(KeyCode.Space))
+                {
+
+                    foreach (var projectile in projectiles)
+                    {
+                        if (projectile.tag == "Arrow")
+                        {
+                            Debug.Log(projectile);
+                            firedProjectile = projectile;
+                        }
 
                     }
 
-                    else if (hit.transform.tag == "Barrel")
+                    // Restricts shooting to one arrow at a time
+                    var arrow = GameObject.FindGameObjectWithTag("Arrow");
+                    if (arrow == null)
                     {
+                        FireProjectiles(firedProjectile);
+                    }
 
-                        /*Debug.Log(hit.transform.name + " And the center is: " + barrelCenter + ". And the center in game: " + hit.transform.position.x);
-                        barrelX =  (float)Math.Round(Mathf.Abs(hit.transform.position.x - mousePos.x), 2);
-                        var animator = barrel.GetComponent<Animator>();
-                        var LeftOrRight = mousePos.x / 100;
-                        if(LeftOrRight > 4.15)
+
+                }
+
+                if (Input.GetKeyDown(KeyCode.P) && canDropOil == true)
+                {
+                    foreach (var projectile in projectiles)
+                    {
+                        if (projectile.name == "Oil")
                         {
-                            animator.SetFloat("X", barrelX);
+                            Debug.Log(projectile);
+                            firedProjectile = projectile;
                         }
-                        else if(LeftOrRight <= 4.15)
-                        {
-                            animator.SetFloat("X", barrelX * -1);
-                        }
-                        // Movement now done in DragScript which is attached to the barrel
-                        // TODO: Maybe do it with animation instead? Makes it smoother?
+                    }
+                    var oil = GameObject.Find("Oil");
+                    if (oil == null)
+                    {
+                        FireProjectiles(firedProjectile);
+                    }
+
+                    var barrelAnim = GameObject.FindGameObjectWithTag("Barrel").GetComponent<Animation>();
+                    if (!barrelAnim.isPlaying)
+                    {
+                        barrelAnim.Play("BarrelRotation", PlayMode.StopSameLayer);
+                    }
+
+                    oilDropCooldown = surviveTimer;
+                    canDropOil = false;
+                    // Could still give below a chance. Maybe try and change the oil attributes?
+                    //spawner.Spawn(); // Spawns oil from barrel! <<<<<<<------------ This is related to the waterspawner script. In that the oil-object cant collide.
+                }
+
+                if (Input.GetKeyDown(KeyCode.L))
+                {
+                    // TODO: Write a method to drop the scythe and then return to the start-state
+                    /*var chain = GameObject.FindGameObjectWithTag("Chain");
+                    if (chain != null) ReturnScythe();
+                    else if (chain == null) DropScythe();*/
+
+                    if (!canWeDrop) canWeDrop = true;
+
+                }
+            }
+
+            // IF user has chosen TouchInput for mobile
+            if(mms.ChosenInput == MainMenuScript.chosenInput.TouchInput)
+            {
+
+                // IS supposed to be touch version of rotation an object
+                if (Input.touchCount > 0)
+                {
+                    touch = Input.GetTouch(0);
+                    var weapon = GameObject.FindGameObjectWithTag("Weapon");
+                    touchPosition = Input.GetTouch(0).position;
+                    RaycastHit hit;
+                    Ray ray = Camera.main.ScreenPointToRay(touchPosition);
+                    
+                    if (Physics.Raycast(ray, out hit))
+                    {
                         
-                        Debug.Log(barrelX / 10 + ". And mouseX: " + mousePos.x + ". Moving left or right: " + LeftOrRight); // 54.8 -- 30.8  -- 10.8 */
+                        if (hit.transform.tag == "Weapon")
+                        {
+                            
+                            if (UpOrDown == 0)
+                            {
+                                rotationY = Quaternion.Euler(0f, 0f, -touchPosition.y * rotateSpeedModifier);
+                                rotationYDown = Quaternion.Euler(0f, 0f, touchPosition.y * rotateSpeedModifier);
+                            }
+
+                            UpOrDown = touchPosition.y / 100;
+                            Debug.Log(UpOrDown + " touchPositionY: " + touchPosition.y);
+                            if (UpOrDown > 0.6f)
+                            {
+                                //xRotation = (float)Math.Round(Mathf.Abs(bowCenter - hit.transform.rotation.x), 2);
+                                weaponYPosition = (float)Math.Round(Mathf.Abs(weaponInputCenter - touchPosition.y), 2);
+                                touchPosition.y = weaponYPosition;
+                                weapon.transform.rotation = rotationY * weapon.transform.rotation;
+                                //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationY: " + rotationY);                          
+                            }
+                            else if (UpOrDown <= 0.4f)
+                            {
+                                weaponYPosition = (float)Math.Round(Mathf.Abs(weaponInputCenter - touchPosition.y), 2);
+                                touchPosition.y = weaponYPosition;
+                                weapon.transform.rotation = rotationYDown * weapon.transform.rotation;
+                                //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationYDown: " + rotationYDown);
+                            }
+
+                            // TODO: Put logic here. What happens when player holds finger(or in this testing-case mouse) on object. 
+                            // Rotation. 
+                            rotationY = Quaternion.Euler(0f, 0f, -touchPosition.y * rotateSpeedModifier);
+                            rotationYDown = Quaternion.Euler(0f, 0f, touchPosition.y * rotateSpeedModifier);
+                            //Debug.Log("mousePos.Y:  " + mousePos.y + " And UpOrDown: " + UpOrDown);
+
+
+                            // Below works, but trying to implement same working solution from mouseInput above
+                            /*rotationY = Quaternion.Euler(0f, -touch.deltaPosition.x * rotateSpeedModifier, 0f);
+                            weapon.transform.rotation = rotationY * weapon.transform.rotation;*/
+                        }
+
+                        // This is where we fire arrow if player releases finger on bow
+                        if(touch.phase == TouchPhase.Ended && hit.transform.tag == "Weapon")
+                        {
+                            foreach (var projectile in projectiles)
+                            {
+                                if (projectile.tag == "Arrow")
+                                {
+                                    Debug.Log(projectile);
+                                    firedProjectile = projectile;
+                                }
+
+                            }
+
+                            // Restricts shooting to one arrow at a time
+                            var arrow = GameObject.FindGameObjectWithTag("Arrow");
+                            if (arrow == null)
+                            {
+                                FireProjectiles(firedProjectile);
+                            }
+                        }
+
+                        // This is where we drop the oil if player releases finger on barrel
+                        if(touch.phase == TouchPhase.Ended && hit.transform.tag == "Barrel")
+                        {
+                            foreach (var projectile in projectiles)
+                            {
+                                if (projectile.name == "Oil")
+                                {
+                                    Debug.Log(projectile);
+                                    firedProjectile = projectile;
+                                }
+                            }
+                            var oil = GameObject.Find("Oil");
+                            if (oil == null)
+                            {
+                                FireProjectiles(firedProjectile);
+                            }
+
+                            var barrelAnim = GameObject.FindGameObjectWithTag("Barrel").GetComponent<Animation>();
+                            if (!barrelAnim.isPlaying)
+                            {
+                                barrelAnim.Play("BarrelRotation", PlayMode.StopSameLayer);
+                            }
+
+                            oilDropCooldown = surviveTimer;
+                            canDropOil = false;
+                        }
+
+                        if(Input.touchCount == 2)
+                        {
+                            Debug.Log("Two fingers on screen. Dropping scythe!");
+                            if (!canWeDrop) canWeDrop = true;
+                        }
                     }
-                }               
-                
-            }
-             // Testing projectile fire with keyboard input
-             // TODO: This firing should happen with Touch-input. Tap screen to fire IE.
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-               
-                foreach(var projectile in projectiles)
-                {
-                    if(projectile.tag == "Arrow")
-                    {
-                        Debug.Log(projectile);
-                        firedProjectile = projectile;
-                    }
-                                       
+                    
                 }
-
-                // Restricts shooting to one arrow at a time
-                var arrow = GameObject.FindGameObjectWithTag("Arrow");
-                if(arrow == null)
-                {
-                    FireProjectiles(firedProjectile);    
-                }
-                              
-                                
-            } 
-            
-            if(Input.GetKeyDown(KeyCode.P) && canDropOil == true)
-            {
-                foreach (var projectile in projectiles)
-                {                    
-                    if (projectile.name == "Oil")
-                    {
-                        Debug.Log(projectile);
-                        firedProjectile = projectile;
-                    }
-                }
-                var oil = GameObject.Find("Oil");
-                if(oil == null)
-                {
-                    FireProjectiles(firedProjectile);
-                }
-
-                var barrelAnim = GameObject.FindGameObjectWithTag("Barrel").GetComponent<Animation>();
-                if (!barrelAnim.isPlaying)
-                {
-                    barrelAnim.Play("BarrelRotation", PlayMode.StopSameLayer);
-                }
-
-                oilDropCooldown = surviveTimer;
-                canDropOil = false;               
-                // Could still give below a chance. Maybe try and change the oil attributes?
-                //spawner.Spawn(); // Spawns oil from barrel! <<<<<<<------------ This is related to the waterspawner script. In that the oil-object cant collide.
-            }
-
-            if(Input.GetKeyDown(KeyCode.L))
-            {
-                // TODO: Write a method to drop the scythe and then return to the start-state
-                /*var chain = GameObject.FindGameObjectWithTag("Chain");
-                if (chain != null) ReturnScythe();
-                else if (chain == null) DropScythe();*/
-
-                if (!canWeDrop) canWeDrop = true;                
 
             }
-            
+                       
+            // Below code drops the scythe and then returns it to its origin.         
             if(canWeDrop)
             {
                 if(!returnBool)

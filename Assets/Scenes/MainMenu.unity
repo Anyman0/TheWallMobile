@@ -682,6 +682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walls:
   - {fileID: 2100000, guid: 96dae2f09f54868408f904428548d00f, type: 2}
+  ChosenInput: 1
   levels:
   - climbers:
     - {fileID: 639721775788697416, guid: 28b4fadfa9d98c94abfd685749ccf908, type: 3}

@@ -21,6 +21,12 @@ public class MainMenuScript : MonoBehaviour
         public float climberSpeed;
     }
 
+    public enum chosenInput
+    {
+        KeyboardMouse = 0, 
+        TouchInput = 1
+    }
+    public chosenInput ChosenInput; 
     public Level[] levels;
 
     private void Awake()
