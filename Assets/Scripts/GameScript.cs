@@ -49,9 +49,11 @@ public class GameScript : MonoBehaviour
     private float oilDropCooldown; // This is value used to set cooldown for dropping oil 
     private bool canDropOil;
     // Scythe
-    private Vector3 scytheOrigin;
+    private Quaternion scytheOrigin;
     private Vector3 chainOrigin;
     private GameObject chain; // For setting it active, since we can't find the object when it's set to inactive
+    private bool canWeDrop;
+    private bool returnBool;
 
     // Player attributes
     public int climbersDropped;
@@ -81,11 +83,8 @@ public class GameScript : MonoBehaviour
         climbersDroppedText = GameObject.FindGameObjectWithTag("ClimbersText").GetComponent<Text>();
 
         // Get Scythe and Chain origin positions
-        scytheOrigin = GameObject.FindGameObjectWithTag("Scythe").transform.position;
-        chainOrigin = GameObject.FindGameObjectWithTag("Chain").transform.position;
-        chain = GameObject.FindGameObjectWithTag("Chain");
-        Debug.Log(chainOrigin);
-        GameObject.FindGameObjectWithTag("Chain").SetActive(false);
+        scytheOrigin = GameObject.FindGameObjectWithTag("Scythe").transform.rotation;        
+        
     }
 
     // Start is called before the first frame update
@@ -307,11 +306,40 @@ public class GameScript : MonoBehaviour
             if(Input.GetKeyDown(KeyCode.L))
             {
                 // TODO: Write a method to drop the scythe and then return to the start-state
-                var chain = GameObject.FindGameObjectWithTag("Chain");
+                /*var chain = GameObject.FindGameObjectWithTag("Chain");
                 if (chain != null) ReturnScythe();
-                else if (chain == null) DropScythe();
+                else if (chain == null) DropScythe();*/
+
+                if (!canWeDrop) canWeDrop = true;                
+
             }
             
+            if(canWeDrop)
+            {
+                if(!returnBool)
+                {
+                    DropScythe();
+                }
+                
+                var scythePos = GameObject.FindGameObjectWithTag("Scythe");
+                
+                if(scythePos.transform.rotation.z > 0.9f)
+                {
+                    Debug.Log("At over 0.7f. Actual value is here: " + scythePos.transform.rotation);
+                    returnBool = true;
+                }
+
+                if(returnBool)
+                {
+                    ReturnScythe();
+                    if(scythePos.transform.rotation.z <= -0.7f)
+                    {
+                        scythePos.transform.rotation = scytheOrigin;
+                        returnBool = false;
+                        canWeDrop = false;
+                    }
+                }
+            }
 
         }
 
@@ -360,22 +388,18 @@ public class GameScript : MonoBehaviour
 
     // Method to drop the scythe
     public void DropScythe()
-    {       
-        chain.SetActive(true);
+    {
         var scythe = GameObject.FindGameObjectWithTag("Scythe");
-        scythe.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+        var scytheRotation = Quaternion.Euler(0, 0, scythe.transform.rotation.z + 1f);
+        scythe.transform.rotation = scytheRotation * scythe.transform.rotation;
     }
 
     // Method to return the scythe to the origin position
     public void ReturnScythe()
     {
-        var scythe = GameObject.FindGameObjectWithTag("Scythe");       
-        scythe.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Kinematic;
-        scythe.transform.position = scytheOrigin;
-        var chain = GameObject.FindGameObjectWithTag("Chain");
-        chain.SetActive(false);
-        //chain.transform.position = chainOrigin;
-              
+        var scythe = GameObject.FindGameObjectWithTag("Scythe");
+        var scytheRotation = Quaternion.Euler(0, 0, scythe.transform.rotation.z + -1f);
+        scythe.transform.rotation = scytheRotation * scythe.transform.rotation;
     }
 
     // Method to add climber in game. Getting a random spawnposition from a list of spawnpositions
@@ -388,7 +412,7 @@ public class GameScript : MonoBehaviour
         animator.SetFloat("ClimbSpeedMultiplier", cMultiply);
     }
 
-    // 427.37, 401.8, -28.75
+    
     // Method to add players chosen weapon in game.
     public void AddWeapon(GameObject weapon)
     {
@@ -405,7 +429,7 @@ public class GameScript : MonoBehaviour
         {
             var weapon = GameObject.FindGameObjectWithTag("Weapon");
             location = weapon.transform.position;
-            zRotation = projectile.transform.rotation * weapon.transform.rotation;
+            zRotation = projectile.transform.rotation * weapon.transform.rotation;            
         }
         else if(projectile.name == "Oil")
         {
