@@ -14,6 +14,7 @@ public class CollisionScript : MonoBehaviour
     [HideInInspector]
     public float sTime;
     GameObject statPanel;
+   
     private void Awake()
     {
         gs = GameObject.Find("Environment").GetComponent<GameScript>();             
@@ -25,6 +26,7 @@ public class CollisionScript : MonoBehaviour
         if (collision.gameObject.tag == "GoblinClimber" && this.transform.tag != "WallTop")
         {
             gs.climbersDropped++;
+            
         }
 
         if(collision.gameObject.layer != 8) // Layer check DOES NOT WORK. TODO: Oil needs to go through the barrel and keep moving. Now it gets destroyed on impact with barrel where it gets instantiated.
@@ -43,7 +45,7 @@ public class CollisionScript : MonoBehaviour
             Debug.Log("Climber reached the top... Game Over!");           
             gs.isMenuVisible = true;
             gs.MenuView.SetActive(true);
-            var seconds = Mathf.Round(gs.surviveTimer);
+            var seconds = Mathf.Round(gs.surviveTimer + gs.addedTimePerWave);
             GameObject.FindGameObjectWithTag("PauseButton").SetActive(false);
             GameObject.FindGameObjectWithTag("GameStatsPanel").SetActive(false);
             GameObject.Find("ClimberText").GetComponent<Text>().text = "You managed to drop a total of: " + gs.climbersDropped + " Climbers.";

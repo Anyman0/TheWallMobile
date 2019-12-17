@@ -26,6 +26,8 @@ TagManager:
   - WallTop
   - StatsPanel
   - GameStatsPanel
+  - WaveView
+  - WaveText
   layers:
   - Default
   - TransparentFX
@@ -36,7 +38,7 @@ TagManager:
   - 
   - 
   - Indestructible
-  - 
+  - Notification
   - 
   - 
   - 

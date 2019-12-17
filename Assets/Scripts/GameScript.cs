@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameScript : MonoBehaviour
@@ -11,11 +12,12 @@ public class GameScript : MonoBehaviour
     private Material loadedWall;
 
     // Climber attributes
-    private GameObject climber;    
+    private GameObject climber;
     private double climberSpawnTimer;
     private double climberSpawn;
     private double climbST = 0;
-    
+    private float climberSpeedInWave;
+
     // Boolean to check if Menu is set to active
     [HideInInspector]
     public bool isMenuVisible;
@@ -30,6 +32,18 @@ public class GameScript : MonoBehaviour
     public GameObject MenuView;
     private List<GameObject> climbersInPlay;
     private GameObject rumbleParticle;
+    private GameObject waveViewObject;
+    private bool isWaveView;
+    private bool increase;
+    private bool goToWaveView = true;
+    private Image waveViewImage;
+    private float colorA;
+    private int[] waveCounts;
+    private int waves = 1;
+    [HideInInspector]
+    public int addedTimePerWave;
+    private int prevAddedTime;
+
 
     // Weapon attributes
     // Bow
@@ -70,9 +84,9 @@ public class GameScript : MonoBehaviour
     public float surviveTimer;
 
     // Get scripts
-    MainMenuScript.Level lvl; 
-    private MainMenuScript mms;
-    Water2D.Water2D_Spawner spawner;
+    MainMenuScript.Level lvl;
+    CollisionScript cs;
+    private MainMenuScript mms;   
 
     private void Awake() // Awake() works as the initializer here 
     {
@@ -100,34 +114,89 @@ public class GameScript : MonoBehaviour
         rumbleAudio = GameObject.FindGameObjectWithTag("Scythe").GetComponent<AudioSource>();
         rumbleParticle = GameObject.Find("Rumble");
         rumbleParticle.SetActive(false);
-      
+
+        // Get and hide WaveView
+        waveViewImage = GameObject.FindGameObjectWithTag("WaveView").GetComponent<Image>();
+        waveViewImage.CrossFadeAlpha(0, 0.1f, true);
+        colorA = waveViewImage.color.a;
+        colorA = 0;
+
+        waveViewObject = GameObject.FindGameObjectWithTag("WaveView");
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        LoadLevel(0);        
-        AddSpawnLocations();              
+        LoadLevel(0);
+        AddSpawnLocations();
+
+        // Here we make WaveCounts include values from 10 to 200. 
+        waveCounts = new int[20];
+        int v = 10;
+        for(int i = 0; i <= 19; i++)
+        {
+
+            waveCounts[i] = v;
+            v += 10;          
+        }
+        
     }
 
     // TODO: Spawntime of climbers should be determined by time survived. Need a timer for this 
     void Update()
     {
+        //prevAddedTime = addedTimePerWave;
+               
+        if (waves == 1)
+        {
+            climberSpawn = 5;
+            climberSpeedInWave = 1;
+            addedTimePerWave = 40;
+        }
+        else if(waves == 2)
+        {
+            climberSpawn = 4;
+            climberSpeedInWave = 1;
+            addedTimePerWave = 80;
+        }
+        else if(waves == 3)
+        {
+            climberSpawn = 4;
+            climberSpeedInWave = 2;
+            addedTimePerWave = 120;
+        }
+        else if(waves == 4)
+        {
+            climberSpawn = 3;
+            climberSpeedInWave = 3;
+            addedTimePerWave = 160;
+        }
+        else if(waves == 5)
+        {
+            climberSpawn = 2;
+            climberSpeedInWave = 3;
+            addedTimePerWave = 200;
+        }
+            
        
         if(!isMenuVisible)
         {
-            surviveTimer += 0.01f;
-            climberSpawnTimer += 0.01f;
-            // TODO: Change climberSpeed and spawnTimers based on above surviveTimer values.             
-
+            if(!isWaveView)
+            {
+                surviveTimer += 0.01f;
+                climberSpawnTimer += 0.01f;               
+            }
+                       
+            // Debug.Log("ClimbST: " + climbST + ". And climberSpawnTimer: " + climberSpawnTimer + ". And climberSpawn: " + climberSpawn + ". SurviveTimer: " + surviveTimer);
             //Debug.Log("Value of climbST: " + climbST + ". And the value of climberSpawnTimer: " + climberSpawnTimer + ". And surviveTimer: " + surviveTimer);
             if(surviveTimer < 10f) // At level 1. Start
             {
+                //climberSpawn = 5;
                 if(climbST <= climberSpawnTimer)
                 {
                     climbST = climberSpawnTimer + climberSpawn;
                     var climber = mms.levels[0].climbers[0];
-                    var climbSpeedMultiplier = mms.levels[0].climberSpeed;
+                    var climbSpeedMultiplier = climberSpeedInWave; //mms.levels[0].climberSpeed;
                     var weapon = mms.levels[0].weapons[0];
                     var barrel = barrels[0];
                     var existingWeapon = GameObject.FindGameObjectWithTag("Weapon");
@@ -135,55 +204,66 @@ public class GameScript : MonoBehaviour
 
                     AddClimber(climber, climbSpeedMultiplier);
                     if(existingWeapon == null) AddWeapon(weapon);
-                    if (existingBarrel == null) AddBarrel(barrel);                    
+                    if (existingBarrel == null) AddBarrel(barrel);
+                    LoadLevel(waves);
+                }
+
+            }
+
+            else if(surviveTimer >= waveCounts[0] && surviveTimer < waveCounts[1]) // At level 2
+            {
+                                                              
+                if(!isWaveView)
+                {
+                    
+                    if (climbST <= climberSpawnTimer)
+                    {
+                        climbST = climberSpawnTimer + climberSpawn;
+                        var climber = mms.levels[1].climbers[0];
+                        var climbSpeedMultiplier = climberSpeedInWave;//mms.levels[1].climberSpeed;
+
+                        AddClimber(climber, climbSpeedMultiplier);                       
+                    }
+                }
+                
+            }
+            
+            else if(surviveTimer > waveCounts[1] && surviveTimer < waveCounts[2]) // At level 3
+            {
+                
+                if(climbST <= climberSpawnTimer)
+                {
+                    climbST = climberSpawnTimer + climberSpawn - 1;
+                    var climber = mms.levels[2].climbers[0];
+                    var climbSpeedMultiplier = climberSpeedInWave;//mms.levels[2].climberSpeed;
+                    AddClimber(climber, climbSpeedMultiplier);
                     
                 }
-
             }
 
-            else if(surviveTimer >= 10f && surviveTimer < 20f) // At level 2
+            else if(surviveTimer > waveCounts[2] && surviveTimer < waveCounts[3]) // At level 4
             {
-                climberSpawn = 4; 
-                if(climbST <= climberSpawnTimer)
-                {
-                    climbST = climberSpawnTimer + climberSpawn;
-                    var climber = mms.levels[1].climbers[0];
-                    var climbSpeedMultiplier = mms.levels[1].climberSpeed;
-
-                    AddClimber(climber, climbSpeedMultiplier);
-                    LoadLevel(1);
-                }
-            }
-            
-            else if(surviveTimer > 20f && surviveTimer < 30f) // At level 3
-            {
-                climberSpawn = 3;
+                
                 if(climbST <= climberSpawnTimer)
                 {
                     climbST = climberSpawnTimer + climberSpawn;
                     var climber = mms.levels[2].climbers[0];
-                    var climbSpeedMultiplier = mms.levels[2].climberSpeed;
+                    var climbSpeedMultiplier = climberSpeedInWave;
                     AddClimber(climber, climbSpeedMultiplier);
-                    LoadLevel(2);
-                }
-            }
-
-            else if(surviveTimer > 30f && surviveTimer < 40f) // At level 4
-            {
-                climberSpawn = 3;
-                if(climbST <= climberSpawnTimer)
-                {
-                    climbST = climberSpawnTimer + climberSpawn;
-                    var climber = mms.levels[2].climbers[0];
-                    var climbSpeedMultiplier = 2f;
-                    AddClimber(climber, climbSpeedMultiplier);
-                    LoadLevel(3);
+                    
                 }
             }
             
-            else if(surviveTimer > 40f && surviveTimer < 50f) // At level 5
-            {
-
+            if(GameObject.FindGameObjectWithTag("Climbers").transform.childCount == 0 && surviveTimer >= waveCounts[3])
+            {                
+                waves++;
+                surviveTimer = 0;
+                climberSpawnTimer = 0;
+                climbST = 0;
+                oilDropCooldown = 0;
+                GameObject.FindGameObjectWithTag("WaveText").GetComponent<Text>().text = "NEXT WAVE..!";
+                GameObject.FindGameObjectWithTag("WaveText").GetComponent<Text>().fontSize = 10;
+                WaveView();
             }
 
                                
@@ -484,14 +564,15 @@ public class GameScript : MonoBehaviour
             }
 
         }
-
-        climbersDroppedText.text = "Climbers Dropped: \n" + climbersDropped;       
-        timeSurvivedText.text = "Time Survived: \n" + (int)surviveTimer; // Why do we have timeSurvived?
+        
+        climbersDroppedText.text = "Climbers Dropped: " + climbersDropped;          
+        timeSurvivedText.text = "Time Survived: \n" + (int)surviveTimer; 
+        if(increase) InvokeRepeating("fontSize", 1, 3);
 
         //Debug.Log(GameObject.FindGameObjectWithTag("SurvivedText") + ". And the actual text in it: " + timeSurvivedText.text);
 
         // Set a cooldown for dropping oil. TODO: Make it visible to the player somehow. Maybe change opacity of the barrel?
-        if(surviveTimer - oilDropCooldown > 10 && canDropOil == false)
+        if (surviveTimer - oilDropCooldown > 10 && canDropOil == false)
         {
             canDropOil = true;            
         }
@@ -639,14 +720,15 @@ public class GameScript : MonoBehaviour
     {
         var climbersParent = GameObject.FindGameObjectWithTag("Climbers");
         var pauseButton = GameObject.FindGameObjectWithTag("PauseButton");
-
+        Debug.Log("WTF");
         if(!MenuView.activeSelf)
         {
            isMenuVisible = true;
            MenuView.SetActive(true);           
            pauseButton.GetComponentInChildren<Text>().text = "Continue";
-            
-           foreach(Transform child in climbersParent.transform)
+           
+
+           foreach (Transform child in climbersParent.transform)
            {
                 var cSpeed = child.GetComponent<Animator>().GetFloat("ClimbSpeedMultiplier");
                 child.GetComponent<ClimberAttributesScript>().climbSpeed = cSpeed;
@@ -659,8 +741,9 @@ public class GameScript : MonoBehaviour
             isMenuVisible = false;
             MenuView.SetActive(false);           
             pauseButton.GetComponentInChildren<Text>().text = "Pause";
+            
 
-            foreach(Transform child in climbersParent.transform)
+            foreach (Transform child in climbersParent.transform)
             {                   
                 child.GetComponent<Animator>().SetFloat("ClimbSpeedMultiplier", child.GetComponent<ClimberAttributesScript>().climbSpeed);                
             }
@@ -668,5 +751,43 @@ public class GameScript : MonoBehaviour
         
     }
 
+    // This shows user the change of waves
+    public void WaveView()
+    {
+            isWaveView = true;
+            var waveText = GameObject.FindGameObjectWithTag("WaveText");
+            //GameObject.FindGameObjectWithTag("WaveText").GetComponent<Text>().text = "NEXT WAVE..!";
+            Debug.Log(colorA);
+            if (colorA == 0)
+            {
+                Debug.Log(colorA);
+                waveViewImage.CrossFadeAlpha(1, 1.5f, true);
+                colorA = waveViewImage.color.a;
+                Debug.Log(colorA);
+            }
+
+            if (colorA == 1)
+            {
+                increase = true;
+                StartCoroutine(crossFadeOut());
+            }
+      
+    }
+
+    IEnumerator crossFadeOut()
+    {
+        yield return new WaitForSeconds(3);
+        waveViewImage.CrossFadeAlpha(0, 1.5f, false);
+        colorA = 0;      
+        isWaveView = false;
+        increase = false;
+        goToWaveView = false;
+    }
+
+    void fontSize()
+    {
+        GameObject.FindGameObjectWithTag("WaveText").GetComponent<Text>().fontSize += 1;
+    }
+  
 
 }
