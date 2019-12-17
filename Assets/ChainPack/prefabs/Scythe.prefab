@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3038821001628724738}
   - component: {fileID: 1158598785}
   - component: {fileID: 1816655606536683978}
-  - component: {fileID: 1447245780112193167}
+  - component: {fileID: 6165370319785523001}
   m_Layer: 0
   m_Name: Scythe
   m_TagString: Scythe
@@ -117,7 +117,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.8200005, y: 2.3100004, z: 0.2}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1447245780112193167
+--- !u!114 &6165370319785523001
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -126,6 +126,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3038821001628724736}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1df5b3163a691664498752ac087a20f1, type: 3}
+  m_Script: {fileID: 11500000, guid: facdc20e3a2f7784e97ea1edddca87e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

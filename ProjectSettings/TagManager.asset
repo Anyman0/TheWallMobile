@@ -22,6 +22,10 @@ TagManager:
   - Oil
   - Scythe
   - Chain
+  - PauseButton
+  - WallTop
+  - StatsPanel
+  - GameStatsPanel
   layers:
   - Default
   - TransparentFX

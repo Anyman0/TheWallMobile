@@ -5,10 +5,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 
-public class MainMenuScript : MonoBehaviour
+public class MainMenuScript : CollisionScript
 {
 
-
+    
     private Button playButton;
     public Material[] walls;
 
@@ -31,7 +31,9 @@ public class MainMenuScript : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);        
+        DontDestroyOnLoad(this);
+        GameObject.Find("ClimberText").GetComponent<Text>().text = "Your stats from previous attempt will be shown here.";
+        GameObject.Find("MainSurvivedText").GetComponent<Text>().text = "";
     }
 
 
@@ -39,7 +41,6 @@ public class MainMenuScript : MonoBehaviour
     void Start()
     {        
         playButton =  GameObject.FindGameObjectWithTag("PlayButton").GetComponent<Button>();
-
     }
 
     // Update is called once per frame
@@ -53,5 +54,8 @@ public class MainMenuScript : MonoBehaviour
     public void OnPlayButtonClicked()
     {
         SceneManager.LoadScene("GameScene");
+        GameObject.Find("ClimberText").GetComponent<Text>().text = "Your stats from previous attempt will be shown here.";
+        GameObject.Find("MainSurvivedText").GetComponent<Text>().text = "";
     }
+   
 }

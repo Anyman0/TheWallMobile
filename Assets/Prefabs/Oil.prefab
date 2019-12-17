@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 9022268581929056438}
   - component: {fileID: 2898815403750603205}
   - component: {fileID: 1752762009597713846}
-  - component: {fileID: 641160408856679929}
   - component: {fileID: 6666321257717268030}
   - component: {fileID: 7171716515220489343}
+  - component: {fileID: 8911592041602097960}
   m_Layer: 0
   m_Name: Oil
   m_TagString: Oil
@@ -81,18 +81,6 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!114 &641160408856679929
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4599932080014668464}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1df5b3163a691664498752ac087a20f1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &6666321257717268030
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -122,3 +110,15 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8911592041602097960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4599932080014668464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: facdc20e3a2f7784e97ea1edddca87e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

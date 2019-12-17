@@ -27,6 +27,9 @@ public class GameScript : MonoBehaviour
     public bool IsInvoked;
     private Vector3 location;
     private Quaternion zRotation;
+    public GameObject MenuView;
+    private List<GameObject> climbersInPlay;
+    private GameObject rumbleParticle;
 
     // Weapon attributes
     // Bow
@@ -37,6 +40,7 @@ public class GameScript : MonoBehaviour
     private float xRotation; // This is used to count the weapon rotation from bowCenter
     private float weaponInputCenter; // Basic position value of the weapon
     private float weaponYPosition; // This is used to calculate the position of touch/mouse from bowCenter   
+    private AudioSource bowShoot;
     // Barrels
     public List<GameObject> projectiles;
     public List<GameObject> barrels;
@@ -48,34 +52,38 @@ public class GameScript : MonoBehaviour
     private float UpOrDown = 0f;
     private float oilDropCooldown; // This is value used to set cooldown for dropping oil 
     private bool canDropOil;
+    private AudioSource oilDrop;
     // Scythe
     private Quaternion scytheOrigin;
     private Vector3 chainOrigin;
     private GameObject chain; // For setting it active, since we can't find the object when it's set to inactive
     private bool canWeDrop;
     private bool returnBool;
+    private AudioSource rumbleAudio;
 
     // Player attributes
     public int climbersDropped;
     private float timeSurvived;
     private Text climbersDroppedText;
     private Text timeSurvivedText;
-    private float surviveTimer;
+    [HideInInspector]
+    public float surviveTimer;
 
     // Get scripts
     MainMenuScript.Level lvl; 
-    MainMenuScript mms;
+    private MainMenuScript mms;
     Water2D.Water2D_Spawner spawner;
 
     private void Awake() // Awake() works as the initializer here 
     {
-        DontDestroyOnLoad(this); // Scene stays active after swapping to MenuView. TODO: Need to stop all actions for this tho. 
+        //DontDestroyOnLoad(this); // Scene stays active after swapping to MenuView. TODO: Need to stop all actions for this tho. 
         lvl = new MainMenuScript.Level();
         mms = GameObject.FindGameObjectWithTag("MainMenu").GetComponent<MainMenuScript>();        
         climberSpawn = 5;
-        spawnLocations = new List<Vector3>();   
-        
+        spawnLocations = new List<Vector3>();
+
         // As we are NOT destroying the Menu on load, we hide it here instead. // TODO: Is this a performance issue?
+        MenuView = GameObject.FindGameObjectWithTag("MainMenu");
         GameObject.FindGameObjectWithTag("MainMenu").SetActive(false);
 
         // Initialize texts
@@ -83,15 +91,23 @@ public class GameScript : MonoBehaviour
         climbersDroppedText = GameObject.FindGameObjectWithTag("ClimbersText").GetComponent<Text>();
 
         // Get Scythe and Chain origin positions
-        scytheOrigin = GameObject.FindGameObjectWithTag("Scythe").transform.rotation;        
-        
+        scytheOrigin = GameObject.FindGameObjectWithTag("Scythe").transform.rotation;
+
+        GameObject.FindGameObjectWithTag("PauseButton").SetActive(true);
+        GameObject.FindGameObjectWithTag("GameStatsPanel").SetActive(true);
+
+        // Get Rumble
+        rumbleAudio = GameObject.FindGameObjectWithTag("Scythe").GetComponent<AudioSource>();
+        rumbleParticle = GameObject.Find("Rumble");
+        rumbleParticle.SetActive(false);
+      
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        LoadLevel();        
-        AddSpawnLocations();
+        LoadLevel(0);        
+        AddSpawnLocations();              
     }
 
     // TODO: Spawntime of climbers should be determined by time survived. Need a timer for this 
@@ -119,8 +135,7 @@ public class GameScript : MonoBehaviour
 
                     AddClimber(climber, climbSpeedMultiplier);
                     if(existingWeapon == null) AddWeapon(weapon);
-                    if (existingBarrel == null) AddBarrel(barrel);
-                    spawner = GameObject.FindGameObjectWithTag("Barrel").GetComponent<Water2D.Water2D_Spawner>();
+                    if (existingBarrel == null) AddBarrel(barrel);                    
                     
                 }
 
@@ -136,6 +151,7 @@ public class GameScript : MonoBehaviour
                     var climbSpeedMultiplier = mms.levels[1].climberSpeed;
 
                     AddClimber(climber, climbSpeedMultiplier);
+                    LoadLevel(1);
                 }
             }
             
@@ -148,6 +164,7 @@ public class GameScript : MonoBehaviour
                     var climber = mms.levels[2].climbers[0];
                     var climbSpeedMultiplier = mms.levels[2].climberSpeed;
                     AddClimber(climber, climbSpeedMultiplier);
+                    LoadLevel(2);
                 }
             }
 
@@ -160,6 +177,7 @@ public class GameScript : MonoBehaviour
                     var climber = mms.levels[2].climbers[0];
                     var climbSpeedMultiplier = 2f;
                     AddClimber(climber, climbSpeedMultiplier);
+                    LoadLevel(3);
                 }
             }
             
@@ -171,9 +189,9 @@ public class GameScript : MonoBehaviour
                                
              
             // IF user has chosen Keyboard&Mouse inputs for testing
-            if(mms.ChosenInput == 0)
+            if(mms.ChosenInput == MainMenuScript.chosenInput.KeyboardMouse)
             {
-
+                
                 if (Input.GetButton("Fire1"))
                 {
                     var weapon = GameObject.FindGameObjectWithTag("Weapon");
@@ -246,7 +264,7 @@ public class GameScript : MonoBehaviour
 
                 if (Input.GetKeyDown(KeyCode.Space))
                 {
-
+                   
                     foreach (var projectile in projectiles)
                     {
                         if (projectile.tag == "Arrow")
@@ -262,6 +280,8 @@ public class GameScript : MonoBehaviour
                     if (arrow == null)
                     {
                         FireProjectiles(firedProjectile);
+                        bowShoot = GameObject.FindGameObjectWithTag("Weapon").GetComponent<AudioSource>();
+                        bowShoot.Play();
                     }
 
 
@@ -281,6 +301,8 @@ public class GameScript : MonoBehaviour
                     if (oil == null)
                     {
                         FireProjectiles(firedProjectile);
+                        oilDrop = GameObject.FindGameObjectWithTag("Barrel").GetComponent<AudioSource>();
+                        oilDrop.Play();
                     }
 
                     var barrelAnim = GameObject.FindGameObjectWithTag("Barrel").GetComponent<Animation>();
@@ -303,7 +325,7 @@ public class GameScript : MonoBehaviour
                     else if (chain == null) DropScythe();*/
 
                     if (!canWeDrop) canWeDrop = true;
-
+                    rumbleAudio.Play();
                 }
             }
 
@@ -380,6 +402,8 @@ public class GameScript : MonoBehaviour
                             if (arrow == null)
                             {
                                 FireProjectiles(firedProjectile);
+                                bowShoot = GameObject.FindGameObjectWithTag("Weapon").GetComponent<AudioSource>();
+                                bowShoot.Play();
                             }
                         }
 
@@ -398,6 +422,8 @@ public class GameScript : MonoBehaviour
                             if (oil == null)
                             {
                                 FireProjectiles(firedProjectile);
+                                oilDrop = GameObject.FindGameObjectWithTag("Barrel").GetComponent<AudioSource>();
+                                oilDrop.Play();
                             }
 
                             var barrelAnim = GameObject.FindGameObjectWithTag("Barrel").GetComponent<Animation>();
@@ -414,6 +440,7 @@ public class GameScript : MonoBehaviour
                         {
                             Debug.Log("Two fingers on screen. Dropping scythe!");
                             if (!canWeDrop) canWeDrop = true;
+                            rumbleAudio.Play();
                         }
                     }
                     
@@ -435,6 +462,7 @@ public class GameScript : MonoBehaviour
                 {
                     Debug.Log("At over 0.7f. Actual value is here: " + scythePos.transform.rotation);
                     returnBool = true;
+                    rumbleParticle.SetActive(true);
                 }
 
                 if(returnBool)
@@ -445,8 +473,14 @@ public class GameScript : MonoBehaviour
                         scythePos.transform.rotation = scytheOrigin;
                         returnBool = false;
                         canWeDrop = false;
+                        
                     }
                 }
+            }
+
+            if(!rumbleAudio.isPlaying)
+            {
+                rumbleParticle.SetActive(false);
             }
 
         }
@@ -465,14 +499,26 @@ public class GameScript : MonoBehaviour
 
 
     // This method is called to load the "Start" - settings. Timer starts from 0.
-    public void LoadLevel()
+    public void LoadLevel(int level)
     {
         try
         {
-            Debug.Log(lvl + " And the mss: " + mms);
-            loadedWall = mms.walls[0]; 
-            GameObject.FindGameObjectWithTag("Wall").GetComponent<MeshRenderer>().material = loadedWall;
-            //AddBarrel(barrels[0]);
+            if(level == 0)
+            {
+                loadedWall = mms.walls[level];
+                GameObject.FindGameObjectWithTag("Wall").GetComponent<MeshRenderer>().material = loadedWall;
+            }
+            else if(level == 1)
+            {
+                loadedWall = mms.walls[level];
+                GameObject.FindGameObjectWithTag("Wall").GetComponent<MeshRenderer>().material = loadedWall;
+            }
+            else if(level == 2)
+            {
+                loadedWall = mms.walls[level];
+                GameObject.FindGameObjectWithTag("Wall").GetComponent<MeshRenderer>().material = loadedWall;
+            }
+                                   
         }
 
         catch
@@ -515,9 +561,9 @@ public class GameScript : MonoBehaviour
     {        
         var spawnLocs = spawnLocations.ToArray();       
         var climbersObject = GameObject.FindGameObjectWithTag("Climbers");        
-        var newClimber = Instantiate(climber, spawnLocations[UnityEngine.Random.Range(0,15)], Quaternion.identity, climbersObject.transform);  
+        var newClimber = Instantiate(climber, spawnLocations[UnityEngine.Random.Range(0,15)], Quaternion.identity, climbersObject.transform);       
         var animator = newClimber.GetComponent<Animator>();
-        animator.SetFloat("ClimbSpeedMultiplier", cMultiply);
+        animator.SetFloat("ClimbSpeedMultiplier", cMultiply);       
     }
 
     
@@ -586,6 +632,40 @@ public class GameScript : MonoBehaviour
         
         var newBarrel = Instantiate(Barrel);
         barrelCenter = newBarrel.transform.position.x;
+    }
+
+    // This method is called if player pauses the game 
+    public void PauseButton()
+    {
+        var climbersParent = GameObject.FindGameObjectWithTag("Climbers");
+        var pauseButton = GameObject.FindGameObjectWithTag("PauseButton");
+
+        if(!MenuView.activeSelf)
+        {
+           isMenuVisible = true;
+           MenuView.SetActive(true);           
+           pauseButton.GetComponentInChildren<Text>().text = "Continue";
+            
+           foreach(Transform child in climbersParent.transform)
+           {
+                var cSpeed = child.GetComponent<Animator>().GetFloat("ClimbSpeedMultiplier");
+                child.GetComponent<ClimberAttributesScript>().climbSpeed = cSpeed;
+                child.GetComponent<Animator>().SetFloat("ClimbSpeedMultiplier", 0);
+           } 
+
+        }
+        else if(MenuView.activeSelf)
+        {
+            isMenuVisible = false;
+            MenuView.SetActive(false);           
+            pauseButton.GetComponentInChildren<Text>().text = "Pause";
+
+            foreach(Transform child in climbersParent.transform)
+            {                   
+                child.GetComponent<Animator>().SetFloat("ClimbSpeedMultiplier", child.GetComponent<ClimberAttributesScript>().climbSpeed);                
+            }
+        }
+        
     }
 
 

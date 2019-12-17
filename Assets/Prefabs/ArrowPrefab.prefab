@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1488255802005157900}
   - component: {fileID: 1448859437441854574}
   - component: {fileID: 7579560394522501425}
-  - component: {fileID: 8497478203179336885}
+  - component: {fileID: 408436952286298525}
   m_Layer: 0
   m_Name: ArrowPrefab
   m_TagString: Arrow
@@ -113,7 +113,7 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
---- !u!114 &8497478203179336885
+--- !u!114 &408436952286298525
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -122,6 +122,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1510730324298247960}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1df5b3163a691664498752ac087a20f1, type: 3}
+  m_Script: {fileID: 11500000, guid: facdc20e3a2f7784e97ea1edddca87e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
