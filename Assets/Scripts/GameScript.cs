@@ -90,7 +90,7 @@ public class GameScript : MonoBehaviour
 
     private void Awake() // Awake() works as the initializer here 
     {
-        //DontDestroyOnLoad(this); // Scene stays active after swapping to MenuView. TODO: Need to stop all actions for this tho. 
+        //DontDestroyOnLoad(this); // Scene stays active after swapping to MenuView. 
         lvl = new MainMenuScript.Level();
         mms = GameObject.FindGameObjectWithTag("MainMenu").GetComponent<MainMenuScript>();        
         climberSpawn = 5;
@@ -120,7 +120,7 @@ public class GameScript : MonoBehaviour
         waveViewImage.CrossFadeAlpha(0, 0.1f, true);
         colorA = waveViewImage.color.a;
         colorA = 0;
-
+        waveViewImage.SetNativeSize();
         waveViewObject = GameObject.FindGameObjectWithTag("WaveView");
     }
 
@@ -143,7 +143,7 @@ public class GameScript : MonoBehaviour
     }
 
     // TODO: Spawntime of climbers should be determined by time survived. Need a timer for this 
-    void Update()
+    void FixedUpdate() 
     {
         //prevAddedTime = addedTimePerWave;
                
@@ -183,8 +183,8 @@ public class GameScript : MonoBehaviour
         {
             if(!isWaveView)
             {
-                surviveTimer += 0.01f;
-                climberSpawnTimer += 0.01f;               
+                surviveTimer += 0.015f;
+                climberSpawnTimer += 0.015f;               
             }
                        
             // Debug.Log("ClimbST: " + climbST + ". And climberSpawnTimer: " + climberSpawnTimer + ". And climberSpawn: " + climberSpawn + ". SurviveTimer: " + surviveTimer);
@@ -310,8 +310,7 @@ public class GameScript : MonoBehaviour
                                 //Debug.Log("mousePos.y: " + mousePos.y / 100 + ". And rotationYDown: " + rotationYDown);
                             }
 
-                            // TODO: Put logic here. What happens when player holds finger(or in this testing-case mouse) on object. 
-                            // Rotation. 
+                             
                             rotationY = Quaternion.Euler(0f, 0f, -mousePos.y * rotateSpeedModifier);
                             rotationYDown = Quaternion.Euler(0f, 0f, mousePos.y * rotateSpeedModifier);
                             //Debug.Log("mousePos.Y:  " + mousePos.y + " And UpOrDown: " + UpOrDown);
@@ -372,7 +371,7 @@ public class GameScript : MonoBehaviour
                     foreach (var projectile in projectiles)
                     {
                         if (projectile.name == "Oil")
-                        {
+                        {                             
                             Debug.Log(projectile);
                             firedProjectile = projectile;
                         }
@@ -488,7 +487,7 @@ public class GameScript : MonoBehaviour
                         }
 
                         // This is where we drop the oil if player releases finger on barrel
-                        if(touch.phase == TouchPhase.Ended && hit.transform.tag == "Barrel")
+                        if(touch.phase == TouchPhase.Ended && hit.transform.tag == "Barrel" && canDropOil )
                         {
                             foreach (var projectile in projectiles)
                             {
@@ -684,9 +683,11 @@ public class GameScript : MonoBehaviour
             {
                 newProjectile.GetComponent<Animator>().Play("ShotArrowAnimation", 0);
             }
+            
         }
-                            
-        Invoke("RemoveProjectile", 5f); // This value should come from a given parameter 
+
+        Invoke("RemoveProjectile", 4f); // This value should come from a given parameter
+
     }
     
     IEnumerator DropOil(GameObject projectile, float delayTime)

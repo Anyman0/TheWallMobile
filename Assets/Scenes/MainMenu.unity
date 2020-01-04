@@ -789,7 +789,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: ef7ea779c4b06c44dbe1512ffb506838, type: 2}
   - {fileID: 2100000, guid: a6fa5bd2d2af7664685ca22809135b94, type: 2}
   - {fileID: 2100000, guid: b7efee39c51e1c94f9e535a8e6edb43b, type: 2}
-  ChosenInput: 0
+  ChosenInput: 1
   levels:
   - climbers:
     - {fileID: 639721775788697416, guid: 28b4fadfa9d98c94abfd685749ccf908, type: 3}
