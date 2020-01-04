@@ -31,7 +31,7 @@ public class MainMenuScript : CollisionScript
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
+        DontDestroyOnLoad(this);        
         GameObject.Find("ClimberText").GetComponent<Text>().text = "Your stats from previous attempt will be shown here.";
         GameObject.Find("MainSurvivedText").GetComponent<Text>().text = "";
     }
